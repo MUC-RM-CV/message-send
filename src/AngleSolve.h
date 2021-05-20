@@ -12,8 +12,10 @@ private:
     //int aimOffsetY;
     //int cameraYawAngle;
     //int cameraPitchAngle;
+
     double GUN_CAM_DISTANCE_Y = 0;
-    constexpr std::vector<cv::Point3d> BIG_ARMOR_POINTS_3D = {
+    
+    std::vector<cv::Point3d> BIG_ARMOR_POINTS_3D = {
             cv::Point3d(-230,  127, 0), // tl
             cv::Point3d( 230,  127, 0), // tr
             cv::Point3d( 230, -127, 0), // br
@@ -27,13 +29,13 @@ private:
     double cx;
     double cy;
 
-    auto radToDeg = [](double rad) { return rad / CV_PI * 180; }
+    static auto radToDeg(double rad) { return rad / CV_PI * 180; };
 
     auto pinHoleAngleSolve(cv::Point2f pos) {
         std::vector<cv::Point2f> in, out;
         in.push_back(pos);
 
-        cv::undistortPoints(in, out, cameraMatrixm, distortionCoeffs, cv::noArray(), cameraMatrix);
+        cv::undistortPoints(in, out, cameraMatrix, distortionCoeffs, cv::noArray(), cameraMatrix);
         auto pnt = out.front();
 
         auto rx = (pnt.x - cx) / fx;
@@ -57,13 +59,13 @@ public:
         distortionCoeffs = (cv::Mat_<double>(1,5) <<
                 -0.388116, 2.463448, 0.00759493, 0.0062624, -8.007717);
 
-        fx = CAMERA_MATRIX.at<double>(0, 0);
-        fy = CAMERA_MATRIX.at<double>(1, 1);
-        cx = CAMERA_MATRIX.at<double>(0, 2);
-        cy = CAMERA_MATRIX.at<double>(1, 2);
+        fx = cameraMatrix.at<double>(0, 0);
+        fy = cameraMatrix.at<double>(1, 1);
+        cx = cameraMatrix.at<double>(0, 2);
+        cy = cameraMatrix.at<double>(1, 2);
     }
 
-    auto getAngle(cv::Point2f pts[], cv::Point2f pos) {
+    auto getAngle(std::vector<cv::Point2f> pts) {
         cv::Mat rVec = cv::Mat::zeros(3, 1, CV_64FC1); // init rVec
         cv::Mat tVec = cv::Mat::zeros(3, 1, CV_64FC1); // init tVec
 
@@ -75,6 +77,8 @@ public:
         auto distance = sqrt(x_pos * x_pos + y_pos * y_pos + z_pos * z_pos);
 
         if (distance > 5000) {
+            cv::Point2f pos;
+            pos = (((pts[0] + pts[2]) / 2) + ((pts[1] + pts[3]) / 2)) / 2;
             return pinHoleAngleSolve(pos);
         } else {
             auto tan_pitch = - (y_pos / sqrt(x_pos*x_pos + z_pos * z_pos));
