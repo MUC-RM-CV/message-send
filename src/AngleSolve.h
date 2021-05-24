@@ -16,10 +16,10 @@ private:
     double GUN_CAM_DISTANCE_Y = 0;
     
     std::vector<cv::Point3d> BIG_ARMOR_POINTS_3D = {
+            cv::Point3d(-230, -127, 0), // bl
             cv::Point3d(-230,  127, 0), // tl
             cv::Point3d( 230,  127, 0), // tr
-            cv::Point3d( 230, -127, 0), // br
-            cv::Point3d(-230, -127, 0)  // bl
+            cv::Point3d( 230, -127, 0)  // br
     };
     cv::Mat cameraMatrix;       //IntrinsicMatrix
     cv::Mat distortionCoeffs;   //DistortionCoefficients
